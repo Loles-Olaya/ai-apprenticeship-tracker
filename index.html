@@ -33,6 +33,7 @@
   .badge-wip{background:var(--amberbg);color:var(--amber);}
   input[type=text],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
+  .table-wrap{display:block;overflow-x:auto;}
   th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
   th{background:#EDF2F7;color:var(--primary);font-weight:600;}
   .term{font-weight:600;color:var(--primary);}
@@ -484,10 +485,10 @@ function renderFrameworks(){
 function renderKsb(){
   return `<h2>KSB evidence map</h2>
   <p class="muted">Compiled from KSB Relevance boxes across all uploaded workbooks and the KSB_List.xlsx extract. This is a working map, not the official standard — see <b>To verify</b>.</p>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Code</th><th>Description</th><th>Where it appears</th></tr>
     ${KSB_MAP.map(k=>`<tr><td><span class="badge badge-ksb">${k.code}</span></td><td>${k.desc}</td><td class="small">${k.where}</td></tr>`).join('')}
-  </table>`;
+  </table></div>`;
 }
 
 /* ---- OTJ ---- */
@@ -500,10 +501,10 @@ function renderOtj(){
   return `<h2>Off-the-job (OTJ) hours log</h2>
   <p class="muted">Target: 420 hours. The 57 seeded entries below always come straight from the latest OTJs_Tracker.xlsx upload — they can't go stale in your browser. Anything you add yourself below is saved locally on top of them.</p>
   <div class="stat" style="max-width:200px;margin-bottom:14px;cursor:default;"><div class="num">${total}</div><div class="lab">hours logged</div></div>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Date</th><th>Description</th><th>Hours</th><th>Type</th></tr>
     ${entries.map(e=>`<tr><td style="white-space:nowrap;">${e.date}</td><td>${e.desc}</td><td>${e.hours}</td><td><span class="badge">${e.type||''}</span></td></tr>`).join('')}
-  </table>
+  </table></div>
   <h3>Add an entry</h3>
   <div class="card">
     <div class="flex">
@@ -565,10 +566,10 @@ function renderEvidenceDetail(){
 function renderNotes(){
   return `<h2>My notes &amp; prompts</h2>
   <h3>Prompt library (from My_own_glossary.xlsx)</h3>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>Purpose</th><th>Prompt</th></tr>
     ${PROMPTS.map(p=>`<tr><td>${p.purpose}</td><td class="small">${p.prompt}</td></tr>`).join('')}
-  </table>
+  </table></div>
   <h3>Free notes</h3>
   <div class="card">
     <textarea id="freeNotes" rows="6" placeholder="Anything else worth keeping here...">${state.notes||''}</textarea>
@@ -591,10 +592,10 @@ function renderVerify(){
 function renderSources(){
   return `<h2>Sources &amp; update log</h2>
   <p class="muted">Every time new material is uploaded and folded in, add a row here with the date — this is how you'll know what's been included and what still needs a top-up.</p>
-  <table>
+  <div class="table-wrap"><table>
     <tr><th>File</th><th>What it contributed</th><th>Date included</th></tr>
     ${SOURCES.map(s=>`<tr><td>${s.file}</td><td class="small">${s.note}</td><td>${s.date}</td></tr>`).join('')}
-  </table>
+  </table></div>
   <p class="small" style="margin-top:10px;"><b>Last full update:</b> ${LAST_UPDATE}</p>`;
 }
 
