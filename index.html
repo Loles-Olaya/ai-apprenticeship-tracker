@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Apprenticeship Tracker — Loles Olaya</title>
+<style>
+  :root{
+    --primary:#2D3748; --secondary:#4A5568; --accent:#F56565;
+    --bg:#F7FAFC; --text:#1A202C; --card:#FFFFFF; --border:#E2E8F0;
+    --green:#2F855A; --greenbg:#F0FFF4; --amber:#B7791F; --amberbg:#FFFBEB;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);}
+  header{background:var(--primary);color:#fff;padding:22px 28px;}
+  header h1{margin:0 0 4px;font-size:22px;font-weight:600;}
+  header p{margin:0;color:#CBD5E0;font-size:13px;}
+  nav{display:flex;flex-wrap:wrap;background:var(--secondary);position:sticky;top:0;z-index:10;}
+  nav button{background:none;border:none;color:#EDF2F7;padding:12px 16px;font-size:13px;cursor:pointer;border-bottom:3px solid transparent;}
+  nav button.active{border-bottom:3px solid var(--accent);font-weight:600;background:rgba(255,255,255,.07);}
+  nav button:hover{background:rgba(255,255,255,.08);}
+  main{max-width:1000px;margin:0 auto;padding:20px 24px 60px;}
+  section{display:none;}
+  section.active{display:block;}
+  h2{font-size:19px;border-bottom:2px solid var(--accent);padding-bottom:6px;margin-top:0;}
+  h3{font-size:15px;color:var(--primary);margin:22px 0 8px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:14px;}
+  .muted{color:var(--secondary);font-size:13px;}
+  .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#EDF2F7;color:var(--secondary);margin-right:6px;}
+  .badge-ksb{background:#FFF5F5;color:#C53030;}
+  .badge-mod{background:#EBF8FF;color:#2B6CB0;}
+  .badge-done{background:var(--greenbg);color:var(--green);}
+  .badge-wip{background:var(--amberbg);color:var(--amber);}
+  input[type=text],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{background:#EDF2F7;color:var(--primary);font-weight:600;}
+  .term{font-weight:600;color:var(--primary);}
+  .flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;text-align:center;flex:1;min-width:120px;}
+  .stat .num{font-size:24px;font-weight:700;color:var(--accent);}
+  .stat .lab{font-size:12px;color:var(--secondary);}
+  .toverify{background:var(--amberbg);border:1px solid #F6E05E;border-radius:8px;padding:14px 18px;margin-bottom:14px;}
+  .toverify li{margin-bottom:8px;}
+  ul{padding-left:20px;}
+  button.btn{background:var(--primary);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:12px;cursor:pointer;}
+  button.btn:hover{background:var(--secondary);}
+  .imgwrap{text-align:center;margin:14px 0;}
+  .imgwrap img{max-width:100%;border:1px solid var(--border);border-radius:6px;}
+  .searchbar{margin-bottom:16px;}
+  .small{font-size:12px;color:var(--secondary);}
+  .glossary-source{float:right;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AI Apprenticeship Tracker</h1>
+  <p>Level 4 AI &amp; Automation Practitioner · AiCore · Maria Dolores Olaya Santiago (Loles) · RWS Group</p>
+</header>
+
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<script>
+/* ============ DATA ============ */
+
+const SOURCES = [
+  {file:"Module_1_-_AI_Opportunity_Discovery___Workflow_Mapping.docx", note:"Full Module 1 course content — Units 1–4", date:"2026-08-25"},
+  {file:"Module_2_-_Responsible_AI___Safe_Agent_Adoption.docx", note:"Module 2, Unit 1 course content (Lessons 1–2, WIP)", date:"2026-08-25"},
+  {file:"Module1_Unit1_Workbook.docx", note:"Unit 1 workbook — AI & Automation Foundations (completed)", date:"2026-08-25"},
+  {file:"Module1_Unit2_Workbook_v1_WIP.docx", note:"Unit 2 workbook — Hands-on GenAI tool exploration (WIP)", date:"2026-08-25"},
+  {file:"Module1_Unit3_Workbook.docx / _updated.docx", note:"Unit 3 workbook — Process ID & Workflow Mapping (two versions supplied)", date:"2026-08-25"},
+  {file:"Module1_Unit4_Workbook.docx", note:"Unit 4 workbook — Value estimation, feasibility, business case", date:"2026-08-25"},
+  {file:"M2_Unit1_HumanAI_Workbook_WIP.docx", note:"Module 2 Unit 1 workbook — Human-AI collaboration (WIP)", date:"2026-08-25"},
+  {file:"My_own_glossary.xlsx", note:"Personal glossary + prompt library, self-maintained", date:"2026-08-25"},
+  {file:"KSB_List.xlsx", note:"Unit-specific KSB extract (K5, K6, K9)", date:"2026-08-25"},
+  {file:"patorg_enhancement_swimlane.png", note:"PatOrg enhancement-to-go-live swimlane — workplace evidence", date:"2026-08-25"},
+];
+const LAST_UPDATE = "25 August 2026";
+
+const GLOSSARY = [
+  {term:"Robotic Process Automation (RPA)", def:"Software that mimics human actions on a computer interface (clicking, copying, pasting) to automate repetitive tasks. It follows fixed rules and cannot handle unexpected variation.", src:"Module 1, Unit 1 / My own glossary"},
+  {term:"Large Language Model (LLM)", def:"An AI model trained on enormous amounts of text that can understand and generate human language. It works by predicting the most useful next word or phrase given the context it has been provided.", src:"Module 1, Unit 1 / My own glossary"},
+  {term:"Hallucination", def:"When a GenAI model generates information that sounds plausible and confident but is factually incorrect. The model does not know it is wrong — it has no way of knowing.", src:"Module 1, Unit 1 / My own glossary"},
+  {term:"AI Agent", def:"An AI system that can take sequences of actions to achieve a goal, using tools (search, code execution, API calls) and making intermediate decisions. It operates with more autonomy than a single-turn GenAI model.", src:"Module 1, Unit 1 / My own glossary"},
+  {term:"Human-in-the-loop (HITL)", def:"A design principle / supervision model in which human review, approval, or correction is built into an AI-enabled process at defined points. The AI proposes; the human decides before anything downstream happens. Most intensive form of oversight — costs throughput but is appropriate where errors carry significant consequence.", src:"Module 1, Unit 1 · Module 2, Unit 1 / My own glossary"},
+  {term:"Human-on-the-loop", def:"A supervision model where the AI acts autonomously, but a human monitors outputs and can intervene to override or correct them. More efficient than human-in-the-loop, but only real oversight if the monitor genuinely has time, clear signals, and authority to act.", src:"Module 2, Unit 1"},
+  {term:"Human-out-of-the-loop", def:"The AI acts fully autonomously with no live human involvement. Appropriate for low-stakes, high-volume, easily reversible actions; inappropriate where actions are irreversible or errors are consequential.", src:"Module 2, Unit 1"},
+  {term:"Automation bias", def:"The tendency for people to over-rely on automated systems, accepting their outputs without applying the judgement or verification they would apply to the same information from a human source.", src:"Module 2, Unit 1"},
+  {term:"Fine-tuning", def:"Taking a general LLM and training it further on a specific dataset (e.g. a company's internal documents) so it performs better on that domain or style. More resource-intensive than standard deployment, but can significantly improve relevance and accuracy for specialist use cases.", src:"My own glossary"},
+  {term:"Embeddings", def:"A way of representing meaning numerically so that similar concepts can be found mathematically. Foundational to search and retrieval systems that connect GenAI to specific knowledge bases.", src:"My own glossary"},
+  {term:"Retrieval-Augmented Generation (RAG)", def:"A technique where a GenAI model is connected to a knowledge base and retrieves relevant documents at the moment of a query, using them to generate a more accurate, grounded response. Widely used in enterprise AI as a way of reducing hallucination risk.", src:"My own glossary"},
+  {term:"Sentiment analysis", def:"The process of reading a piece of text and determining the emotional tone behind it — typically classifying it as positive or negative. One of the most established business applications of AI: the model reads comments at scale and returns a structured judgement on each.", src:"My own glossary"},
+  {term:"AI Builder", def:"Microsoft's no-code AI capability built into the Power Platform. Lets you use AI models — including LLMs — directly inside Power Automate flows without writing code. The \"Run a prompt\" action sends text to an AI model and returns a generated response. Runs on Copilot credits — check licensing before building.", src:"Module 1, Unit 2 / My own glossary"},
+  {term:"Value Stream Mapping (VSM)", def:"Originated in lean manufacturing (Toyota Production System). Where a process map asks \"what happens and who does it?\", VSM asks a broader question: across the entire end-to-end flow, where is value created, and where is time/effort consumed without adding value? Captures process steps, data flows, wait times, cycle times, and value vs waste. More strategic than process mapping — used to prioritise where to focus, not to design a specific automation. For apprenticeship project work, process mapping is the right tool; VSM is out of scope but useful context.", src:"Module 1, Unit 3 / My own glossary"},
+];
+
+const FRAMEWORKS = [
+  {
+    title:"The automation spectrum",
+    module:"Module 1, Unit 1",
+    body:"Traditional automation (RPA), Generative AI, and AI agents sit on a spectrum rather than being rigid categories. Moving right along the spectrum does not automatically mean better — a task perfectly handled by a simple macro does not need a GenAI agent. Choosing the right level of sophistication for the task is itself a core practitioner judgement."
+  },
+  {
+    title:"Four lenses for spotting productivity opportunities",
+    module:"Module 1, Unit 1 (evidences K5)",
+    body:"<b>1. Reduce waste</b> — tasks that add no direct value (duplicate data entry, reformatting, manual chasing).<br><b>2. Improve processes</b> — bottlenecks, inconsistencies, handover points that slow things down or introduce errors.<br><b>3. Increase satisfaction</b> — friction or delay experienced by colleagues or customers.<br><b>4. Optimise outcomes</b> — better use of data or AI analysis to improve decision quality or surface missed insights."
+  },
+  {
+    title:"The AI Fluency Framework — the 4Ds",
+    module:"Module 1, Unit 1 (Anthropic framework)",
+    body:"<b>Delegation</b> — deciding when and whether to bring AI into a task at all, and what outcome you actually want.<br><b>Description</b> — communicating goals to AI clearly enough to get a useful response; broader than \"prompt engineering\".<br><b>Discernment</b> — accurately assessing AI outputs before acting on them; what makes hallucination a manageable risk rather than a catastrophic one.<br><b>Diligence</b> — the ethical/accountability dimension: approved tools, data handling, transparency, responsibility for consequences."
+  },
+  {
+    title:"Three modes of AI interaction",
+    module:"Module 1, Unit 1",
+    body:"<b>Automation</b> — AI executes specific tasks based on human instructions (rule-based / workflow end of the spectrum).<br><b>Augmentation</b> — human and AI collaborate as thinking partners; human retains the lead.<br><b>Agency</b> — humans configure AI to independently perform future tasks."
+  },
+  {
+    title:"The Process Suitability Framework — five dimensions",
+    module:"Module 1, Unit 3 (evidences K5, S13)",
+    body:"Scores each candidate process High / Medium / Low against five dimensions, with written rationale required for each score:<br><b>1. Volume &amp; repetition</b> — how often it occurs and how consistent each instance is.<br><b>2. Data availability &amp; quality</b> — is the data digital, accessible, consistently structured?<br><b>3. Error tolerance</b> — what happens when the system gets it wrong; is there a human catch-point?<br><b>4. Complexity &amp; variability</b> — structural variability of inputs/outputs, not just content variability.<br><b>5. Strategic value &amp; feasibility</b> — organisational appetite and impact, not just technical suitability."
+  },
+  {
+    title:"The spectrum of impact (on people)",
+    module:"Module 2, Unit 1 (evidences K3)",
+    body:"<b>Task displacement</b> — a bounded task is automated but the role stays largely intact.<br><b>Role transformation</b> — the overall nature of the role changes as AI absorbs enough tasks to shift what the person spends time on.<br><b>New role creation</b> — new roles emerge (monitoring, exception handling, prompt maintenance) — open question is whether displaced people get access to them."
+  },
+  {
+    title:"The three supervision models",
+    module:"Module 2, Unit 1 (evidences K15)",
+    body:"See glossary: Human-in-the-loop, Human-on-the-loop, Human-out-of-the-loop. Meaningful oversight requires three things from the reviewer: <b>information</b> (full input, not just output), <b>time</b> (realistic review volume), and <b>authority</b> (a genuine ability to reject/correct without penalty)."
+  },
+];
+
+const MODULES = [
+  {mod:"Module 1 — AI Opportunity Discovery & Workflow Mapping", status:"done", units:[
+    {name:"Unit 1 — AI & Automation Foundations", status:"done", activities:[
+      "Activity 1 — The AI Distinction Challenge (30 min)",
+      "Activity 2 — Hands-On GenAI Exploration (60–90 min)",
+      "Activity 3 — Workplace AI Landscape Scan (30 min)"
+    ], ksbs:["K9","K6","K5"]},
+    {name:"Unit 2 — Hands-on tool exploration (demos)", status:"wip", activities:[
+      "Activity 1 — Observation Sheet: Demo 1",
+      "Activity 1 — Observation Sheet: Demo 2",
+      "Activity 3 — Tool Orientation (Optional)"
+    ], ksbs:["K9","K5","S13","S14"]},
+    {name:"Unit 3 — Process Identification and Workflow Mapping", status:"done", activities:[
+      "Activity 1 — Process Longlist",
+      "Activity 2 — Apply the Suitability Framework",
+      "Activity 3 — First-Pass Workflow Map"
+    ], ksbs:["K5","K9","S6","S13","S14"]},
+    {name:"Unit 4 — Value, feasibility and business case", status:"wip", activities:[
+      "Activity 1 — Value Estimation and Prioritisation",
+      "Activity 2 — Feasibility Check and Line Manager Conversation",
+      "Activity 3 — The AI Opportunity Business Case"
+    ], ksbs:["K5","K6","K9","S6","S13","S14"]},
+  ]},
+  {mod:"Module 2 — Responsible AI & Safe Agent Adoption", status:"wip", units:[
+    {name:"Unit 1 — Human impact, collaboration & oversight (WIP — Lessons 1–2 supplied)", status:"wip", activities:[
+      "Activity 1 — Alternative route (for learners unable to conduct a stakeholder interview)",
+      "Activity 1 — The Stakeholder Wellbeing Interview (if feasible)",
+      "Activity 2 — Human-AI Collaboration Reflection",
+      "Activity 3 — Sustainable AI Consideration"
+    ], ksbs:["K3","K15","K26","B1","B2","B5"]},
+  ]},
+];
+
+const KSB_MAP = [
+  {code:"K3", desc:"Social and economic impacts of AI on roles, particularly non-technical staff", where:"Module 2, Unit 1"},
+  {code:"K5", desc:"Methods to identify opportunities to enhance productivity — improve processes, reduce waste, increase satisfaction, optimise outcomes", where:"Module 1, Units 1, 2, 3, 4"},
+  {code:"K6", desc:"The importance of designing AI and automation systems that augment rather than replace human work, where feasible", where:"Module 1, Units 1 and 4"},
+  {code:"K9", desc:"AI and automation concepts, models and limitations. The impact adoption may have on workplace culture and wellbeing", where:"Module 1, Units 1, 2, 3, 4"},
+  {code:"K15", desc:"Principles of human oversight and human-AI collaboration", where:"Module 2, Unit 1"},
+  {code:"K26", desc:"Benefits of wellbeing and safe working practices", where:"Module 2, Unit 1"},
+  {code:"S6", desc:"Workflow and process mapping to identify problems or inefficiencies and recommend solutions, including pilots, incremental changes and scaling opportunities", where:"Module 1, Units 3 and 4"},
+  {code:"S13", desc:"Identify opportunities to deliver automation. Support leaders in integrating ethical, empathetic approaches when decision-making", where:"Module 1, Units 2, 3, 4"},
+  {code:"S14", desc:"Support in the identification and evaluation of opportunities for increased productivity — including use of low/no-code tools, streamlining processes, and use of AI platforms", where:"Module 1, Units 2, 3, 4"},
+  {code:"B1", desc:"Work independently and take responsibility for a productive, professional working environment", where:"Module 2, Unit 1"},
+  {code:"B2", desc:"Adapt to changing circumstances, being flexible and responding proactively", where:"Module 2, Unit 1"},
+  {code:"B5", desc:"Sustainable mindset in digital activities", where:"Module 2, Unit 1"},
+];
+
+const SEED_OTJ = [
+  {date:'2026-05-02',desc:'Attended Launch Meeting — introduced to AiCore programme, instructors Gordon Cheung and Chris Butler, KSBs, and programme structure',hours:1.5,ksbs:['K9','K7']},
+  {date:'2026-05-02',desc:'Created a search tool for agents pricing per recordal type out of 3 large spreadsheets',hours:1,ksbs:['K5','S1','S6']},
+  {date:'2026-05-03',desc:'Completed Lesson 1 of Unit 1 — AI Landscape overview',hours:0.5,ksbs:['K9']},
+  {date:'2026-05-07',desc:'Completed Lesson 2 of Unit 1 — Capabilities & Limitations',hours:1.5,ksbs:['K9','K6']},
+  {date:'2026-05-08',desc:'Experimentation with automating documentation creation from videos',hours:2,ksbs:['K5','S1','S4']},
+  {date:'2026-05-09',desc:'Experimentation with automating a tracker',hours:1,ksbs:['K5','S4','B3']},
+  {date:'2026-05-11',desc:'Completed Lesson 3 of Unit 1 — AI in Your Organisation',hours:1,ksbs:['K9','K5','S6']},
+];
+
+const PORTFOLIO_EVIDENCE = [
+  {title:"PatOrg enhancement identification-to-go-live swimlane", desc:"Cross-functional swimlane process map (PM/BA, BA, Business, Development) showing how a PatOrg enhancement moves from initial identification through review, prioritisation, development, QA, UAT, deployment and smoke test to go-live. Directly usable as evidence for Unit 3 (workflow/process mapping, S6) and as a real workplace example for the Suitability Framework and business case work in Unit 4.", img:true},
+];
+
+const TOVERIFY = [
+  "The KSB codes actually referenced across these workbooks (K3, K5, K6, K9, K15, K26, S6, S13, S14, B1, B2, B5) go well beyond the K1–K10 / S1–S8 / B1–B4 range assumed in the June tracker build. Worth uploading the official AiCore KSB matrix/spec so this table can be completed and the code ranges reconciled properly.",
+  "The OTJ hours log below only has the original 7 entries from early May (~8.5 hours total) carried over from the June version of this tracker — nothing since has been logged here. Against a 420-hour target this needs a proper catch-up session (or a decision to reconstruct hours from the July/August work log we built separately).",
+  "Whether LinkedIn 365-Day Learning Challenge days should be logged as OTJ hours for this apprenticeship, or kept as separate CPD/portfolio evidence — this tracker currently keeps them separate.",
+  "Whether Gordon Cheung, Chris Butler and Neil Price are still your current instructor/coach contacts.",
+  "Module 1, Unit 2 and Unit 4, and all of Module 2 beyond Unit 1 Lessons 1–2, are marked WIP based on what's been supplied so far — flag if any of these are actually complete and just missing an updated workbook upload.",
+  "Two versions of the Unit 3 workbook were supplied (Module1_Unit3_Workbook.docx and _updated.docx) — this tracker treated the 'updated' one as authoritative. Confirm that's correct.",
+  "Workbook answers (your own input/feedback in the activity tables) were deliberately NOT pulled into this tracker as verified fact — they're your working answers, not confirmed KSB evidence text. Let me know if you'd like a separate 'draft answers' section added.",
+];
+
+const PROMPTS = [
+  {purpose:"For mapping", prompt:"I am mapping a current-state workflow for [process name] in my organisation. The process involves [brief description of what happens]. The main people and systems involved are [list them]. Can you help me identify the likely steps, decision points, and exception paths I should include in my process map? Take the AI's output as a draft checklist to validate against reality, not as a finished map."},
+];
+
+/* ============ STATE / STORAGE ============ */
+const KEY='ai_apprenticeship_tracker_v2';
+let state={otj:[...SEED_OTJ], notes:''};
+function load(){try{const d=localStorage.getItem(KEY);if(d)state={...state,...JSON.parse(d)};}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+load();
+
+/* ============ NAV / RENDER ============ */
+const TABS=[
+  {id:'overview',label:'Overview'},
+  {id:'modules',label:'Modules & units'},
+  {id:'glossary',label:'Glossary'},
+  {id:'frameworks',label:'Frameworks'},
+  {id:'ksb',label:'KSB map'},
+  {id:'otj',label:'OTJ hours log'},
+  {id:'evidence',label:'Portfolio evidence'},
+  {id:'notes',label:'My notes & prompts'},
+  {id:'verify',label:'To verify'},
+  {id:'sources',label:'Sources & updates'},
+];
+const nav=document.getElementById('nav');
+TABS.forEach(t=>{
+  const b=document.createElement('button');
+  b.textContent=t.label; b.dataset.id=t.id;
+  b.onclick=()=>showTab(t.id);
+  nav.appendChild(b);
+});
+function showTab(id){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+  document.querySelectorAll('main section').forEach(s=>s.classList.toggle('active',s.id===id));
+}
+
+const main=document.getElementById('main');
+
+function el(html){const d=document.createElement('div');d.innerHTML=html;return d;}
+
+/* ---- Overview ---- */
+function renderOverview(){
+  const totalOtj=state.otj.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const doneUnits=MODULES.flatMap(m=>m.units).filter(u=>u.status==='done').length;
+  const totalUnits=MODULES.flatMap(m=>m.units).length;
+  return `
+  <h2>Overview</h2>
+  <div class="card">
+    <p><b>Programme:</b> Level 4 AI &amp; Automation Practitioner (AI Transformation Specialist route)<br>
+    <b>Provider:</b> AiCore<br>
+    <b>Learner:</b> Maria Dolores Olaya Santiago (Loles)<br>
+    <b>Employer:</b> RWS Group<br>
+    <b>Cohort / start date:</b> 21/05/2026</p>
+  </div>
+  <div class="flex">
+    <div class="stat"><div class="num">${doneUnits}/${totalUnits}</div><div class="lab">Units marked complete</div></div>
+    <div class="stat"><div class="num">${totalOtj}</div><div class="lab">OTJ hours logged (of 420)</div></div>
+    <div class="stat"><div class="num">${GLOSSARY.length+FRAMEWORKS.length}</div><div class="lab">Glossary &amp; framework entries</div></div>
+    <div class="stat"><div class="num">${KSB_MAP.length}</div><div class="lab">KSB codes tracked</div></div>
+  </div>
+  <div class="toverify">
+    <b>Last updated:</b> ${LAST_UPDATE} — see <b>Sources &amp; updates</b> tab for exactly which files fed this build, and <b>To verify</b> for open questions to check with you.
+  </div>`;
+}
+
+/* ---- Modules ---- */
+function renderModules(){
+  let h=`<h2>Modules &amp; units</h2>`;
+  MODULES.forEach(m=>{
+    h+=`<div class="card"><h3 style="margin-top:0">${m.mod} <span class="badge ${m.status==='done'?'badge-done':'badge-wip'}">${m.status==='done'?'complete':'in progress'}</span></h3>`;
+    m.units.forEach(u=>{
+      h+=`<div style="margin:12px 0;padding:10px 12px;background:${u.status==='done'?'var(--greenbg)':'var(--amberbg)'};border-radius:6px;">
+        <div class="flex" style="justify-content:space-between;">
+          <b>${u.name}</b>
+          <span class="badge ${u.status==='done'?'badge-done':'badge-wip'}">${u.status==='done'?'complete':'WIP'}</span>
+        </div>
+        <ul>${u.activities.map(a=>`<li class="small">${a}</li>`).join('')}</ul>
+        <div>${u.ksbs.map(k=>`<span class="badge badge-ksb">${k}</span>`).join('')}</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  return h;
+}
+
+/* ---- Glossary ---- */
+function renderGlossary(){
+  return `
+  <h2>Glossary</h2>
+  <div class="searchbar"><input type="text" id="glossarySearch" placeholder="Search terms..." oninput="filterGlossary()"></div>
+  <div id="glossaryList"></div>`;
+}
+function filterGlossary(){
+  const q=(document.getElementById('glossarySearch').value||'').toLowerCase();
+  const list=document.getElementById('glossaryList');
+  const items=GLOSSARY.filter(g=>g.term.toLowerCase().includes(q)||g.def.toLowerCase().includes(q));
+  list.innerHTML=items.map(g=>`
+    <div class="card">
+      <span class="badge glossary-source">${g.src}</span>
+      <div class="term">${g.term}</div>
+      <div class="small" style="margin-top:4px;line-height:1.5;">${g.def}</div>
+    </div>`).join('') || '<p class="muted">No matches.</p>';
+}
+
+/* ---- Frameworks ---- */
+function renderFrameworks(){
+  return `<h2>Frameworks &amp; models</h2>
+  <p class="muted">Multi-part frameworks referenced across the modules — kept separate from single-term glossary entries.</p>
+  ${FRAMEWORKS.map(f=>`
+    <div class="card">
+      <span class="badge glossary-source">${f.module}</span>
+      <div class="term">${f.title}</div>
+      <div class="small" style="margin-top:6px;line-height:1.6;">${f.body}</div>
+    </div>`).join('')}`;
+}
+
+/* ---- KSB map ---- */
+function renderKsb(){
+  return `<h2>KSB evidence map</h2>
+  <p class="muted">Compiled from KSB Relevance boxes across all uploaded workbooks and the KSB_List.xlsx extract. This is a working map, not the official standard — see <b>To verify</b>.</p>
+  <table>
+    <tr><th>Code</th><th>Description</th><th>Where it appears</th></tr>
+    ${KSB_MAP.map(k=>`<tr><td><span class="badge badge-ksb">${k.code}</span></td><td>${k.desc}</td><td class="small">${k.where}</td></tr>`).join('')}
+  </table>`;
+}
+
+/* ---- OTJ ---- */
+function renderOtj(){
+  const total=state.otj.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  return `<h2>Off-the-job (OTJ) hours log</h2>
+  <p class="muted">Target: 420 hours. Carried over from the original tracker build (May 2026 entries) — see <b>To verify</b> regarding the gap since then.</p>
+  <div class="stat" style="max-width:200px;margin-bottom:14px;"><div class="num">${total}</div><div class="lab">hours logged</div></div>
+  <table>
+    <tr><th>Date</th><th>Description</th><th>Hours</th><th>KSBs</th></tr>
+    ${state.otj.map(e=>`<tr><td>${e.date}</td><td>${e.desc}</td><td>${e.hours}</td><td>${(e.ksbs||[]).map(k=>`<span class="badge badge-ksb">${k}</span>`).join('')}</td></tr>`).join('')}
+  </table>
+  <h3>Add an entry</h3>
+  <div class="card">
+    <div class="flex">
+      <input type="text" id="otjDate" placeholder="YYYY-MM-DD" style="max-width:140px;">
+      <input type="text" id="otjHours" placeholder="Hours" style="max-width:80px;">
+      <input type="text" id="otjKsbs" placeholder="KSBs, comma separated" style="max-width:180px;">
+    </div>
+    <textarea id="otjDesc" placeholder="Description" style="margin-top:8px;" rows="2"></textarea>
+    <button class="btn" style="margin-top:8px;" onclick="addOtj()">Add entry</button>
+  </div>`;
+}
+function addOtj(){
+  const date=document.getElementById('otjDate').value.trim();
+  const hours=parseFloat(document.getElementById('otjHours').value);
+  const desc=document.getElementById('otjDesc').value.trim();
+  const ksbs=document.getElementById('otjKsbs').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!date||!desc||!hours){alert('Please fill in date, description and hours.');return;}
+  state.otj.push({date,desc,hours,ksbs});
+  state.otj.sort((a,b)=>a.date.localeCompare(b.date));
+  save();
+  renderAll();
+  showTab('otj');
+}
+
+/* ---- Evidence ---- */
+function renderEvidence(){
+  return `<h2>Portfolio evidence</h2>
+  ${PORTFOLIO_EVIDENCE.map(e=>`
+    <div class="card">
+      <div class="term">${e.title}</div>
+      <p class="small" style="line-height:1.6;">${e.desc}</p>
+      ${e.img?'<div class="imgwrap"><img src="patorg_enhancement_swimlane.png" alt="PatOrg enhancement swimlane"></div>':''}
+    </div>`).join('')}`;
+}
+
+/* ---- Notes ---- */
+function renderNotes(){
+  return `<h2>My notes &amp; prompts</h2>
+  <h3>Prompt library (from My_own_glossary.xlsx)</h3>
+  <table>
+    <tr><th>Purpose</th><th>Prompt</th></tr>
+    ${PROMPTS.map(p=>`<tr><td>${p.purpose}</td><td class="small">${p.prompt}</td></tr>`).join('')}
+  </table>
+  <h3>Free notes</h3>
+  <div class="card">
+    <textarea id="freeNotes" rows="6" placeholder="Anything else worth keeping here...">${state.notes||''}</textarea>
+    <button class="btn" style="margin-top:8px;" onclick="saveNotes()">Save notes</button>
+  </div>
+  <p class="muted">Workbook activity answers (your own draft input/feedback in each unit workbook) were kept out of this tracker deliberately — they're working answers, not confirmed evidence text. Say the word if you'd like a dedicated "draft answers" section added per unit.</p>`;
+}
+function saveNotes(){
+  state.notes=document.getElementById('freeNotes').value;
+  save();
+}
+
+/* ---- Verify ---- */
+function renderVerify(){
+  return `<h2>To verify with you</h2>
+  <div class="toverify"><ul>${TOVERIFY.map(v=>`<li>${v}</li>`).join('')}</ul></div>`;
+}
+
+/* ---- Sources ---- */
+function renderSources(){
+  return `<h2>Sources &amp; update log</h2>
+  <p class="muted">Every time new material is uploaded and folded in, add a row here with the date — this is how you'll know what's been included and what still needs a top-up.</p>
+  <table>
+    <tr><th>File</th><th>What it contributed</th><th>Date included</th></tr>
+    ${SOURCES.map(s=>`<tr><td>${s.file}</td><td class="small">${s.note}</td><td>${s.date}</td></tr>`).join('')}
+  </table>
+  <p class="small" style="margin-top:10px;"><b>Last full update:</b> ${LAST_UPDATE}</p>`;
+}
+
+function renderAll(){
+  main.innerHTML='';
+  const sections={
+    overview:renderOverview, modules:renderModules, glossary:renderGlossary,
+    frameworks:renderFrameworks, ksb:renderKsb, otj:renderOtj,
+    evidence:renderEvidence, notes:renderNotes, verify:renderVerify, sources:renderSources
+  };
+  TABS.forEach(t=>{
+    const s=document.createElement('section');
+    s.id=t.id;
+    s.innerHTML=sections[t.id]();
+    main.appendChild(s);
+  });
+  filterGlossary();
+  showTab('overview');
+}
+renderAll();
+</script>
+</body>
+</html>
