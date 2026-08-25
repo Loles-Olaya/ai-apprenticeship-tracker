@@ -37,7 +37,9 @@
   th{background:#EDF2F7;color:var(--primary);font-weight:600;}
   .term{font-weight:600;color:var(--primary);}
   .flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-  .stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;text-align:center;flex:1;min-width:120px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;text-align:center;flex:1;min-width:120px;cursor:pointer;transition:border-color .15s, transform .1s;}
+  .stat:hover{border-color:var(--accent);}
+  .stat:active{transform:scale(0.98);}
   .stat .num{font-size:24px;font-weight:700;color:var(--accent);}
   .stat .lab{font-size:12px;color:var(--secondary);}
   .toverify{background:var(--amberbg);border:1px solid #F6E05E;border-radius:8px;padding:14px 18px;margin-bottom:14px;}
@@ -261,10 +263,10 @@ function renderOverview(){
     <b>Cohort / start date:</b> 21/05/2026</p>
   </div>
   <div class="flex">
-    <div class="stat"><div class="num">${doneUnits}/${totalUnits}</div><div class="lab">Units marked complete</div></div>
-    <div class="stat"><div class="num">${totalOtj}</div><div class="lab">OTJ hours logged (of 420)</div></div>
-    <div class="stat"><div class="num">${GLOSSARY.length+FRAMEWORKS.length}</div><div class="lab">Glossary &amp; framework entries</div></div>
-    <div class="stat"><div class="num">${KSB_MAP.length}</div><div class="lab">KSB codes tracked</div></div>
+    <div class="stat" onclick="showTab('modules')" title="Go to Modules &amp; units"><div class="num">${doneUnits}/${totalUnits}</div><div class="lab">Units marked complete</div></div>
+    <div class="stat" onclick="showTab('otj')" title="Go to OTJ hours log"><div class="num">${totalOtj}</div><div class="lab">OTJ hours logged (of 420)</div></div>
+    <div class="stat" onclick="showTab('glossary')" title="Go to Glossary"><div class="num">${GLOSSARY.length+FRAMEWORKS.length}</div><div class="lab">Glossary &amp; framework entries</div></div>
+    <div class="stat" onclick="showTab('ksb')" title="Go to KSB map"><div class="num">${KSB_MAP.length}</div><div class="lab">KSB codes tracked</div></div>
   </div>
   <div class="toverify">
     <b>Last updated:</b> ${LAST_UPDATE} — see <b>Sources &amp; updates</b> tab for exactly which files fed this build, and <b>To verify</b> for open questions to check with you.
