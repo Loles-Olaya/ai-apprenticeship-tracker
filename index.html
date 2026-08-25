@@ -52,6 +52,21 @@
   .searchbar{margin-bottom:16px;}
   .small{font-size:12px;color:var(--secondary);}
   .glossary-source{float:right;}
+  .term-card{position:relative;padding-right:80px;}
+  .term-card.removed{opacity:.45;}
+  .term-actions{position:absolute;top:14px;right:14px;display:flex;gap:6px;}
+  .icon-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .icon-btn.tick{color:var(--green);}
+  .icon-btn.tick.active{background:var(--greenbg);border-color:var(--green);}
+  .icon-btn.bin{color:var(--accent);}
+  .icon-btn.bin.active{background:#FFF5F5;border-color:var(--accent);}
+  .icon-btn:hover{filter:brightness(0.96);}
+  .status-tag{font-size:10px;text-transform:uppercase;letter-spacing:.03em;font-weight:600;}
+  .status-tag.confirmed{color:var(--green);}
+  .status-tag.removed{color:var(--accent);}
+  .filterbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .filterbar button{font-size:12px;padding:5px 10px;border:1px solid var(--border);background:#fff;border-radius:14px;cursor:pointer;}
+  .filterbar button.active{background:var(--primary);color:#fff;border-color:var(--primary);}
 </style>
 </head>
 <body>
@@ -82,20 +97,31 @@ const SOURCES = [
 const LAST_UPDATE = "25 August 2026";
 
 const GLOSSARY = [
-  {term:"Robotic Process Automation (RPA)", def:"Software that mimics human actions on a computer interface (clicking, copying, pasting) to automate repetitive tasks. It follows fixed rules and cannot handle unexpected variation.", src:"Module 1, Unit 1 / My own glossary"},
-  {term:"Large Language Model (LLM)", def:"An AI model trained on enormous amounts of text that can understand and generate human language. It works by predicting the most useful next word or phrase given the context it has been provided.", src:"Module 1, Unit 1 / My own glossary"},
-  {term:"Hallucination", def:"When a GenAI model generates information that sounds plausible and confident but is factually incorrect. The model does not know it is wrong — it has no way of knowing.", src:"Module 1, Unit 1 / My own glossary"},
-  {term:"AI Agent", def:"An AI system that can take sequences of actions to achieve a goal, using tools (search, code execution, API calls) and making intermediate decisions. It operates with more autonomy than a single-turn GenAI model.", src:"Module 1, Unit 1 / My own glossary"},
-  {term:"Human-in-the-loop (HITL)", def:"A design principle / supervision model in which human review, approval, or correction is built into an AI-enabled process at defined points. The AI proposes; the human decides before anything downstream happens. Most intensive form of oversight — costs throughput but is appropriate where errors carry significant consequence.", src:"Module 1, Unit 1 · Module 2, Unit 1 / My own glossary"},
-  {term:"Human-on-the-loop", def:"A supervision model where the AI acts autonomously, but a human monitors outputs and can intervene to override or correct them. More efficient than human-in-the-loop, but only real oversight if the monitor genuinely has time, clear signals, and authority to act.", src:"Module 2, Unit 1"},
-  {term:"Human-out-of-the-loop", def:"The AI acts fully autonomously with no live human involvement. Appropriate for low-stakes, high-volume, easily reversible actions; inappropriate where actions are irreversible or errors are consequential.", src:"Module 2, Unit 1"},
-  {term:"Automation bias", def:"The tendency for people to over-rely on automated systems, accepting their outputs without applying the judgement or verification they would apply to the same information from a human source.", src:"Module 2, Unit 1"},
-  {term:"Fine-tuning", def:"Taking a general LLM and training it further on a specific dataset (e.g. a company's internal documents) so it performs better on that domain or style. More resource-intensive than standard deployment, but can significantly improve relevance and accuracy for specialist use cases.", src:"My own glossary"},
-  {term:"Embeddings", def:"A way of representing meaning numerically so that similar concepts can be found mathematically. Foundational to search and retrieval systems that connect GenAI to specific knowledge bases.", src:"My own glossary"},
-  {term:"Retrieval-Augmented Generation (RAG)", def:"A technique where a GenAI model is connected to a knowledge base and retrieves relevant documents at the moment of a query, using them to generate a more accurate, grounded response. Widely used in enterprise AI as a way of reducing hallucination risk.", src:"My own glossary"},
-  {term:"Sentiment analysis", def:"The process of reading a piece of text and determining the emotional tone behind it — typically classifying it as positive or negative. One of the most established business applications of AI: the model reads comments at scale and returns a structured judgement on each.", src:"My own glossary"},
-  {term:"AI Builder", def:"Microsoft's no-code AI capability built into the Power Platform. Lets you use AI models — including LLMs — directly inside Power Automate flows without writing code. The \"Run a prompt\" action sends text to an AI model and returns a generated response. Runs on Copilot credits — check licensing before building.", src:"Module 1, Unit 2 / My own glossary"},
-  {term:"Value Stream Mapping (VSM)", def:"Originated in lean manufacturing (Toyota Production System). Where a process map asks \"what happens and who does it?\", VSM asks a broader question: across the entire end-to-end flow, where is value created, and where is time/effort consumed without adding value? Captures process steps, data flows, wait times, cycle times, and value vs waste. More strategic than process mapping — used to prioritise where to focus, not to design a specific automation. For apprenticeship project work, process mapping is the right tool; VSM is out of scope but useful context.", src:"Module 1, Unit 3 / My own glossary"},
+  {id:"rpa", term:"Robotic Process Automation (RPA)", def:"Software that mimics human actions on a computer interface (clicking, copying, pasting) to automate repetitive tasks. It follows fixed rules and cannot handle unexpected variation.", src:"Module 1, Unit 1 / My own glossary"},
+  {id:"llm", term:"Large Language Model (LLM)", def:"An AI model trained on enormous amounts of text that can understand and generate human language. It works by predicting the most useful next word or phrase given the context it has been provided.", src:"Module 1, Unit 1 / My own glossary"},
+  {id:"hallucination", term:"Hallucination", def:"When a GenAI model generates information that sounds plausible and confident but is factually incorrect. The model does not know it is wrong — it has no way of knowing.", src:"Module 1, Unit 1 / My own glossary"},
+  {id:"ai-agent", term:"AI Agent", def:"An AI system that can take sequences of actions to achieve a goal, using tools (search, code execution, API calls) and making intermediate decisions. It operates with more autonomy than a single-turn GenAI model.", src:"Module 1, Unit 1 / My own glossary"},
+  {id:"hitl", term:"Human-in-the-loop (HITL)", def:"A design principle / supervision model in which human review, approval, or correction is built into an AI-enabled process at defined points. The AI proposes; the human decides before anything downstream happens. Most intensive form of oversight — costs throughput but is appropriate where errors carry significant consequence.", src:"Module 1, Unit 1 · Module 2, Unit 1 / My own glossary"},
+  {id:"hotl", term:"Human-on-the-loop", def:"A supervision model where the AI acts autonomously, but a human monitors outputs and can intervene to override or correct them. More efficient than human-in-the-loop, but only real oversight if the monitor genuinely has time, clear signals, and authority to act.", src:"Module 2, Unit 1"},
+  {id:"hootl", term:"Human-out-of-the-loop", def:"The AI acts fully autonomously with no live human involvement. Appropriate for low-stakes, high-volume, easily reversible actions; inappropriate where actions are irreversible or errors are consequential.", src:"Module 2, Unit 1"},
+  {id:"auto-bias", term:"Automation bias", def:"The tendency for people to over-rely on automated systems, accepting their outputs without applying the judgement or verification they would apply to the same information from a human source.", src:"Module 2, Unit 1"},
+  {id:"fine-tuning", term:"Fine-tuning", def:"Taking a general LLM and training it further on a specific dataset (e.g. a company's internal documents) so it performs better on that domain or style. More resource-intensive than standard deployment, but can significantly improve relevance and accuracy for specialist use cases.", src:"Module 1, Unit 1 / My own glossary"},
+  {id:"embeddings", term:"Embeddings", def:"A way of representing meaning numerically so that similar concepts can be found mathematically. Foundational to search and retrieval systems that connect GenAI to specific knowledge bases.", src:"Module 1, Unit 1 / My own glossary"},
+  {id:"rag", term:"Retrieval-Augmented Generation (RAG)", def:"A technique where a GenAI model is connected to a knowledge base and retrieves relevant documents at the moment of a query, using them to generate a more accurate, grounded response. Widely used in enterprise AI as a way of reducing hallucination risk.", src:"Module 1, Unit 1 / My own glossary"},
+  {id:"sentiment", term:"Sentiment analysis", def:"The process of reading a piece of text and determining the emotional tone behind it — typically classifying it as positive or negative. One of the most established business applications of AI: the model reads comments at scale and returns a structured judgement on each.", src:"My own glossary"},
+  {id:"ai-builder", term:"AI Builder", def:"Microsoft's no-code AI capability built into the Power Platform. Lets you use AI models — including LLMs — directly inside Power Automate flows without writing code. The \"Run a prompt\" action sends text to an AI model and returns a generated response. Runs on Copilot credits — check licensing before building.", src:"Module 1, Unit 2 / My own glossary"},
+  {id:"vsm", term:"Value Stream Mapping (VSM)", def:"Originated in lean manufacturing (Toyota Production System). Where a process map asks \"what happens and who does it?\", VSM asks a broader question: across the entire end-to-end flow, where is value created, and where is time/effort consumed without adding value? More strategic than process mapping — used to prioritise where to focus, not to design a specific automation. For apprenticeship project work, process mapping is the right tool; VSM is out of scope but useful context.", src:"Module 1, Unit 3 / My own glossary"},
+  {id:"centaur", term:"Centaur mode", def:"A human-AI collaboration pattern (term coined by Garry Kasparov, later adopted by Harvard Business School researchers) named after the mythological half-human, half-horse. Humans and AI each own distinct subtasks with a clear division of labour — the human directs and takes the judgement steps, the AI handles the defined portion assigned to it. In retrospect it's clear which part was done by whom. Works well when you already have a reasonable, tested sense of what the AI can do reliably, so you can hand off and trust the output without much back-and-forth. Typical tasks: human writes, AI translates; human drafts, AI edits/summarises; AI outlines, human fills in judgement.", src:"Module 2, Unit 1"},
+  {id:"cyborg", term:"Cyborg mode", def:"The counterpart to centaur mode: human and AI work in continuous, iterative back-and-forth rather than taking turns at discrete tasks. The human is always involved, the AI always active — the interaction moves back and forth across the 'jagged frontier' of AI capability, and afterwards it's often hard to say which part the human wrote and which the AI produced. Typical tasks: collaborative creative writing, iteratively developing a problem statement, tailoring a complex document like interview questions through repeated prompting. Neither centaur nor cyborg is inherently better — the right pattern depends on the step, not the person.", src:"Module 2, Unit 1"},
+  {id:"jagged-frontier", term:"The jagged frontier", def:"The uneven, unpredictable boundary between what AI does reliably and where human judgement is still essential — it doesn't run neatly along task type or difficulty the way you'd expect, which is exactly why cyborg-style continuous collaboration (rather than a one-off handoff) is often needed to navigate it. Introduced alongside the centaur/cyborg distinction.", src:"Module 2, Unit 1"},
+  {id:"readiness-test", term:"The readiness test", def:"A quick practical check for whether a task is likely automatable: could you describe it to a new colleague, step by step, precisely enough that they'd produce the same output without relying on experience or instinct they haven't built yet? If yes, the task probably has an automatable core. Answers like \"it depends\" or \"you just know when you've seen enough of them\" signal complexity that needs resolving first. It only tells you automation is possible in principle — not whether it's the right choice (that's what the five-dimension Suitability Framework is for).", src:"Module 1, Unit 3"},
+  {id:"broken-process", term:"Do not automate a broken process", def:"A core practitioner warning: automation amplifies whatever it automates. A well-designed process, automated, becomes faster and more consistent; a poorly designed one produces the same errors at greater speed and scale. Process improvement — removing waste, fixing data quality, eliminating unnecessary steps — often needs to happen before automation, not after.", src:"Module 1, Unit 3"},
+  {id:"effort-value", term:"The Effort/Value matrix", def:"A comparison tool for when you have more than one strong candidate process. Plots candidates on two axes — value created (direct + indirect, scored High/Medium/Low) against effort to implement (technical complexity, data readiness, organisational friction). High-value/low-effort = priority. High-value/high-effort = worth pursuing but needs more groundwork. Low-value/low-effort = not a priority project. Low-value/high-effort = set aside.", src:"Module 1, Unit 4"},
+  {id:"direct-indirect-value", term:"Direct vs indirect value", def:"Two forms of productivity value from automation. Direct value is measurable and immediate — hours saved, cost of errors avoided, transaction volume, headcount capacity released — and is what you lead with in a business case because it's easiest to verify. Indirect value is real but harder to quantify — customer experience, reduced staff frustration, data quality improvements, strategic positioning. Senior leaders often weight both; a strong business case is honest about which figures are precise and which are directional.", src:"Module 1, Unit 4"},
+  {id:"scoping-discipline", term:"Scoping discipline", def:"Described as the single most common way apprenticeship projects fail — not from lack of capability, but from choosing a scope too large to deliver in the programme timeline. The test for good scoping: is the opportunity specific, bounded, achievable within six to eight weeks of active build time, visible to the organisation, and supported by your line manager? A small, completed automation teaches and demonstrates more than a large, unfinished one.", src:"Module 1, Unit 4"},
+  {id:"five-component-case", term:"The five-component business case", def:"The required structure for the apprenticeship gateway submission (approx. 600–900 words): (1) Process description, (2) The opportunity, (3) Productivity value assessment, (4) Feasibility check, (5) Next steps. Submitted together with the Unit 3 workflow map and suitability scoring as supporting evidence.", src:"Module 1, Unit 4"},
+  {id:"process-vs-person", term:"The process and the person are not the same thing", def:"A communication discipline for practitioners: \"I am automating the invoice processing workflow\" describes a change to a process; a colleague hearing it may reasonably interpret \"my job is being automated\" as a threat to their livelihood — and in workplaces where AI is discussed in terms of efficiency savings and headcount, that reaction is often rational, not paranoid. The responsibility is to be precise and specific about what is changing and what isn't, rather than letting people fill the gap with worse assumptions — not to be evasive, and not to mask a genuine headcount impact in reassuring language either.", src:"Module 2, Unit 1"},
+  {id:"who-consulted", term:"Who gets affected and who gets consulted", def:"A named structural pattern in AI adoption: the people most affected by an automation are frequently the people least likely to have been involved in designing it. The people who do a process daily know things about it — informal workarounds, edge cases, steps that look redundant but aren't — that don't appear in any documentation. Leaving them out isn't just an ethical gap, it produces a worse automation.", src:"Module 2, Unit 1"},
 ];
 
 const FRAMEWORKS = [
@@ -214,7 +240,7 @@ const PROMPTS = [
 
 /* ============ STATE / STORAGE ============ */
 const KEY='ai_apprenticeship_tracker_v2';
-let state={otj:[...SEED_OTJ], notes:''};
+let state={otj:[...SEED_OTJ], notes:'', termDecisions:{}};
 function load(){try{const d=localStorage.getItem(KEY);if(d)state={...state,...JSON.parse(d)};}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 load();
@@ -294,22 +320,62 @@ function renderModules(){
 }
 
 /* ---- Glossary ---- */
+let glossaryFilter='all';
 function renderGlossary(){
   return `
   <h2>Glossary</h2>
+  <p class="muted">Extracted from every key-term box, named concept and framework across the uploaded modules and workbooks. Use the tick to confirm a term belongs, the bin to flag it for removal — nothing is deleted from the page until you confirm, but marking it tells me what to trim (or keep looking for more of) next time we talk. <button class="btn" style="float:right;" onclick="exportDecisions()">Export my decisions</button></p>
   <div class="searchbar"><input type="text" id="glossarySearch" placeholder="Search terms..." oninput="filterGlossary()"></div>
+  <div class="filterbar" id="glossaryFilterbar"></div>
   <div id="glossaryList"></div>`;
 }
+function setGlossaryFilter(f){glossaryFilter=f;filterGlossary();}
 function filterGlossary(){
+  const fb=document.getElementById('glossaryFilterbar');
+  if(fb){
+    const opts=[['all','All'],['undecided','Undecided'],['confirmed','Confirmed'],['removed','Marked for removal']];
+    fb.innerHTML=opts.map(([id,label])=>`<button class="${glossaryFilter===id?'active':''}" onclick="setGlossaryFilter('${id}')">${label}</button>`).join('');
+  }
   const q=(document.getElementById('glossarySearch').value||'').toLowerCase();
   const list=document.getElementById('glossaryList');
-  const items=GLOSSARY.filter(g=>g.term.toLowerCase().includes(q)||g.def.toLowerCase().includes(q));
-  list.innerHTML=items.map(g=>`
-    <div class="card">
+  let items=GLOSSARY.filter(g=>g.term.toLowerCase().includes(q)||g.def.toLowerCase().includes(q));
+  if(glossaryFilter!=='all'){
+    items=items.filter(g=>{
+      const d=state.termDecisions[g.id];
+      if(glossaryFilter==='undecided') return !d;
+      return d===glossaryFilter;
+    });
+  }
+  list.innerHTML=items.map(g=>{
+    const d=state.termDecisions[g.id];
+    return `
+    <div class="card term-card ${d==='removed'?'removed':''}">
+      <div class="term-actions">
+        <button class="icon-btn tick ${d==='confirmed'?'active':''}" title="Confirm — keep this term" onclick="setTermDecision('${g.id}','confirmed')">&#10003;</button>
+        <button class="icon-btn bin ${d==='removed'?'active':''}" title="Mark for removal" onclick="setTermDecision('${g.id}','removed')">&#128465;</button>
+      </div>
       <span class="badge glossary-source">${g.src}</span>
-      <div class="term">${g.term}</div>
+      <div class="term">${g.term} ${d?`<span class="status-tag ${d}">${d==='confirmed'?'confirmed':'flagged for removal'}</span>`:''}</div>
       <div class="small" style="margin-top:4px;line-height:1.5;">${g.def}</div>
-    </div>`).join('') || '<p class="muted">No matches.</p>';
+    </div>`;
+  }).join('') || '<p class="muted">No matches.</p>';
+}
+function setTermDecision(id,decision){
+  if(state.termDecisions[id]===decision){delete state.termDecisions[id];} // toggle off
+  else{state.termDecisions[id]=decision;}
+  save();
+  filterGlossary();
+}
+function exportDecisions(){
+  const confirmed=GLOSSARY.filter(g=>state.termDecisions[g.id]==='confirmed').map(g=>g.term);
+  const removed=GLOSSARY.filter(g=>state.termDecisions[g.id]==='removed').map(g=>g.term);
+  const undecided=GLOSSARY.filter(g=>!state.termDecisions[g.id]).map(g=>g.term);
+  const text=`AI Apprenticeship Tracker — glossary decisions (${new Date().toISOString().slice(0,10)})\n\nCONFIRMED (${confirmed.length}):\n${confirmed.map(t=>'- '+t).join('\n')}\n\nMARKED FOR REMOVAL (${removed.length}):\n${removed.map(t=>'- '+t).join('\n')}\n\nUNDECIDED (${undecided.length}):\n${undecided.map(t=>'- '+t).join('\n')}\n`;
+  const blob=new Blob([text],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='glossary-decisions.txt';
+  a.click();
 }
 
 /* ---- Frameworks ---- */
