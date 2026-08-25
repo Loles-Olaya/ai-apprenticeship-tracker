@@ -288,7 +288,8 @@ const PORTFOLIO_EVIDENCE = [
 
 const TOVERIFY = [
   "The KSB codes actually referenced across these workbooks (K3, K5, K6, K9, K15, K26, S6, S13, S14, B1, B2, B5) go well beyond the K1–K10 / S1–S8 / B1–B4 range assumed in the June tracker build. Worth uploading the official AiCore KSB matrix/spec so this table can be completed and the code ranges reconciled properly.",
-  "The OTJ log now reflects your OTJs_Tracker.xlsx in full (57 entries, 64.5 of 420 hours) — one date looks like a typo in the source file: 'Updated knowledge base app' is dated 2026-10-09, sitting between two June entries (08/06 and 09/06). It's very likely meant to be 09/06 (day/month swapped) — worth checking your spreadsheet and correcting there so it flows through next time.",
+  "You may need to do a hard refresh (Ctrl+Shift+R / Cmd+Shift+R) on your Netlify site once after this update — your browser had cached an older local copy of the OTJ log from before the spreadsheet upload, which is why the hours looked out of date even though GitHub and Netlify had the right file. The app is now rebuilt so the seeded OTJ log always comes fresh from the code rather than being overridable by that local cache — this shouldn't recur.",
+  "One date looks like a typo in the OTJ source file: 'Updated knowledge base app' is dated 2026-10-09, sitting between two June entries (08/06 and 09/06). Very likely meant to be 09/06 (day/month swapped) — worth checking your spreadsheet and correcting there so it flows through next time.",
   "One entry has no exact date in the source file ('Conversations with Becky... During July 2026') — kept as a text date rather than guessing a specific day.",
   "Whether LinkedIn 365-Day Learning Challenge days should be logged as OTJ hours for this apprenticeship, or kept as separate CPD/portfolio evidence — this tracker currently keeps them separate.",
   "Whether Gordon Cheung, Chris Butler and Neil Price are still your current instructor/coach contacts.",
@@ -302,8 +303,8 @@ const PROMPTS = [
 ];
 
 /* ============ STATE / STORAGE ============ */
-const KEY='ai_apprenticeship_tracker_v2';
-let state={otj:[...SEED_OTJ], notes:'', termDecisions:{}};
+const KEY='ai_apprenticeship_tracker_v3';
+let state={notes:'', termDecisions:{}, customOtj:[]};
 function load(){
   try{const d=localStorage.getItem(KEY);if(d)state={...state,...JSON.parse(d)};}catch(e){}
   // Baked-in decisions apply as the baseline; anything you've decided locally in
@@ -344,7 +345,7 @@ function el(html){const d=document.createElement('div');d.innerHTML=html;return 
 
 /* ---- Overview ---- */
 function renderOverview(){
-  const totalOtj=state.otj.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const totalOtj=allOtj().reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
   const doneUnits=MODULES.flatMap(m=>m.units).filter(u=>u.status==='done').length;
   const totalUnits=MODULES.flatMap(m=>m.units).length;
   return `
@@ -477,14 +478,18 @@ function renderKsb(){
 }
 
 /* ---- OTJ ---- */
+function allOtj(){
+  return [...SEED_OTJ, ...state.customOtj].slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+}
 function renderOtj(){
-  const total=state.otj.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const entries=allOtj();
+  const total=entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
   return `<h2>Off-the-job (OTJ) hours log</h2>
-  <p class="muted">Target: 420 hours. Replaced with the full, up-to-date log from your OTJs_Tracker.xlsx (57 entries, 64.5 hours) — see <b>To verify</b> for one date anomaly worth checking.</p>
+  <p class="muted">Target: 420 hours. The 57 seeded entries below always come straight from the latest OTJs_Tracker.xlsx upload — they can't go stale in your browser. Anything you add yourself below is saved locally on top of them.</p>
   <div class="stat" style="max-width:200px;margin-bottom:14px;cursor:default;"><div class="num">${total}</div><div class="lab">hours logged</div></div>
   <table>
     <tr><th>Date</th><th>Description</th><th>Hours</th><th>Type</th></tr>
-    ${state.otj.map(e=>`<tr><td style="white-space:nowrap;">${e.date}</td><td>${e.desc}</td><td>${e.hours}</td><td><span class="badge">${e.type||''}</span></td></tr>`).join('')}
+    ${entries.map(e=>`<tr><td style="white-space:nowrap;">${e.date}</td><td>${e.desc}</td><td>${e.hours}</td><td><span class="badge">${e.type||''}</span></td></tr>`).join('')}
   </table>
   <h3>Add an entry</h3>
   <div class="card">
@@ -503,7 +508,7 @@ function addOtj(){
   const desc=document.getElementById('otjDesc').value.trim();
   const type=document.getElementById('otjType').value.trim();
   if(!date||!desc||!hours){alert('Please fill in date, description and hours.');return;}
-  state.otj.push({date,desc,hours,type});
+  state.customOtj.push({date,desc,hours,type});
   save();
   renderAll();
   showTab('otj');
