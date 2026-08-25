@@ -49,6 +49,13 @@
   button.btn:hover{background:var(--secondary);}
   .imgwrap{text-align:center;margin:14px 0;}
   .imgwrap img{max-width:100%;border:1px solid var(--border);border-radius:6px;}
+  .evidence-layout{display:flex;gap:16px;align-items:flex-start;}
+  .evidence-list{flex:0 0 220px;display:flex;flex-direction:column;gap:4px;position:sticky;top:70px;}
+  .evidence-item{text-align:left;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:9px 12px;font-size:12.5px;cursor:pointer;color:var(--text);line-height:1.4;}
+  .evidence-item:hover{border-color:var(--accent);}
+  .evidence-item.active{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:600;}
+  .evidence-detail{flex:1;min-width:0;}
+  @media (max-width:700px){.evidence-layout{flex-direction:column;} .evidence-list{position:static;flex-direction:row;flex-wrap:wrap;width:100%;}}
   .searchbar{margin-bottom:16px;}
   .small{font-size:12px;color:var(--secondary);}
   .glossary-source{float:right;}
@@ -286,6 +293,7 @@ const PORTFOLIO_EVIDENCE = [
   {title:"PatOrg enhancement identification-to-go-live swimlane", desc:"Cross-functional swimlane process map (PM/BA, BA, Business, Development) showing how a PatOrg enhancement moves from initial identification through review, prioritisation, development, QA, UAT, deployment and smoke test to go-live. Directly usable as evidence for Unit 3 (workflow/process mapping, S6) and as a real workplace example for the Suitability Framework and business case work in Unit 4.", img:true},
   {title:"The AI Apprenticeship Tracker itself", desc:"This app — glossary, KSB map, OTJ log, modules and portfolio evidence, self-built and self-maintained across the programme. Logged in the OTJ record as its own activity (K5, S4) and evolved from an earlier prototype called \"Course Companion\" (built 30 June, before the full portfolio system existed). Evidence of independently building and maintaining a tool that supports the practitioner role itself, not just the deliverables it produces."},
   {title:"Recordals quoting automation — candidate opportunity", desc:"The Recordals Quote Assistant work (quoting framework, prototype, and the in-progress Power Platform build with Dataverse tables) looks like the strongest candidate for your actual Unit 3/Unit 4 apprenticeship opportunity — it's been through suitability-style thinking and is now in a real feasibility/build phase. Flagged in To verify: worth confirming this is the process you're formally taking through the gateway submission, since that determines how much of the surrounding work (Chris's and Inam's competing prototypes, the Power Platform build itself) counts as first-party evidence versus context."},
+  {title:"IP Meetings Hub (Lovable prototype)", desc:"A Lovable/React/Supabase prototype that extracts summaries, actions and risks from pasted meeting scripts, with cross-meeting logs and an AI chat/search layer. Included here even though it was primarily a testing exercise in Lovable rather than a finished production tool — the build itself is evidence of evaluating and working hands-on with a no-code/low-code AI platform (S13, S14), which is exactly the kind of tool orientation Unit 2 asks for. Also listed in the general Loles AI Portfolio under IP Programme & work tools."},
 ];
 
 const TOVERIFY = [
@@ -520,14 +528,37 @@ function addOtj(){
 }
 
 /* ---- Evidence ---- */
+let evidenceIndex=0;
 function renderEvidence(){
   return `<h2>Portfolio evidence</h2>
-  ${PORTFOLIO_EVIDENCE.map(e=>`
+  <p class="muted">Select an item to view it.</p>
+  <div class="evidence-layout">
+    <div class="evidence-list" id="evidenceList"></div>
+    <div class="evidence-detail" id="evidenceDetail"></div>
+  </div>`;
+}
+function selectEvidence(i){
+  evidenceIndex=i;
+  renderEvidenceList();
+  renderEvidenceDetail();
+}
+function renderEvidenceList(){
+  const list=document.getElementById('evidenceList');
+  if(!list)return;
+  list.innerHTML=PORTFOLIO_EVIDENCE.map((e,i)=>`
+    <button class="evidence-item ${i===evidenceIndex?'active':''}" onclick="selectEvidence(${i})">${e.title}</button>
+  `).join('');
+}
+function renderEvidenceDetail(){
+  const el=document.getElementById('evidenceDetail');
+  if(!el)return;
+  const e=PORTFOLIO_EVIDENCE[evidenceIndex];
+  el.innerHTML=`
     <div class="card">
       <div class="term">${e.title}</div>
-      <p class="small" style="line-height:1.6;">${e.desc}</p>
+      <p class="small" style="line-height:1.6;margin-top:8px;">${e.desc}</p>
       ${e.img?'<div class="imgwrap"><img src="patorg_enhancement_swimlane.png" alt="PatOrg enhancement swimlane"></div>':''}
-    </div>`).join('')}`;
+    </div>`;
 }
 
 /* ---- Notes ---- */
@@ -581,6 +612,8 @@ function renderAll(){
     main.appendChild(s);
   });
   filterGlossary();
+  renderEvidenceList();
+  renderEvidenceDetail();
   showTab('overview');
 }
 renderAll();
