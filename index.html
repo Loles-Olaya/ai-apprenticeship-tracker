@@ -95,7 +95,7 @@ const SOURCES = [
   {file:"patorg_enhancement_swimlane.png", note:"PatOrg enhancement-to-go-live swimlane — workplace evidence", date:"2026-08-25"},
   {file:"OTJs_Tracker.xlsx", note:"Full off-the-job hours log — replaced the placeholder OTJ data with all 57 logged entries", date:"2026-08-25"},
 ];
-const LAST_UPDATE = "25 August 2026 (v3 — OTJ log replaced with full spreadsheet data)";
+const LAST_UPDATE = "25 August 2026 (v4 — portfolio evidence expanded; see also Loles AI Portfolio for everything outside the apprenticeship)";
 
 const GLOSSARY = [
   {id:"rpa", term:"Robotic Process Automation (RPA)", def:"Software that mimics human actions on a computer interface (clicking, copying, pasting) to automate repetitive tasks. It follows fixed rules and cannot handle unexpected variation.", src:"Module 1, Unit 1 / My own glossary"},
@@ -284,6 +284,8 @@ const SEED_OTJ = [
 
 const PORTFOLIO_EVIDENCE = [
   {title:"PatOrg enhancement identification-to-go-live swimlane", desc:"Cross-functional swimlane process map (PM/BA, BA, Business, Development) showing how a PatOrg enhancement moves from initial identification through review, prioritisation, development, QA, UAT, deployment and smoke test to go-live. Directly usable as evidence for Unit 3 (workflow/process mapping, S6) and as a real workplace example for the Suitability Framework and business case work in Unit 4.", img:true},
+  {title:"The AI Apprenticeship Tracker itself", desc:"This app — glossary, KSB map, OTJ log, modules and portfolio evidence, self-built and self-maintained across the programme. Logged in the OTJ record as its own activity (K5, S4) and evolved from an earlier prototype called \"Course Companion\" (built 30 June, before the full portfolio system existed). Evidence of independently building and maintaining a tool that supports the practitioner role itself, not just the deliverables it produces."},
+  {title:"Recordals quoting automation — candidate opportunity", desc:"The Recordals Quote Assistant work (quoting framework, prototype, and the in-progress Power Platform build with Dataverse tables) looks like the strongest candidate for your actual Unit 3/Unit 4 apprenticeship opportunity — it's been through suitability-style thinking and is now in a real feasibility/build phase. Flagged in To verify: worth confirming this is the process you're formally taking through the gateway submission, since that determines how much of the surrounding work (Chris's and Inam's competing prototypes, the Power Platform build itself) counts as first-party evidence versus context."},
 ];
 
 const TOVERIFY = [
@@ -295,6 +297,9 @@ const TOVERIFY = [
   "Whether Gordon Cheung, Chris Butler and Neil Price are still your current instructor/coach contacts.",
   "Module 1, Unit 2 and Unit 4 are now marked complete per your instruction — the underlying workbooks supplied (Module1_Unit2_Workbook_v1_WIP.docx, Module1_Unit4_Workbook.docx) were still labelled WIP in their filenames, so if there's a newer finished version, worth uploading it so the activity list reflects the final content. Module 2 remains WIP — only Unit 1, Lessons 1–2 have been supplied so far.",
   "Two versions of the Unit 3 workbook were supplied (Module1_Unit3_Workbook.docx and _updated.docx) — this tracker treated the 'updated' one as authoritative. Confirm that's correct.",
+  "Is the Recordals Quote Assistant / quoting automation work your officially chosen Unit 3/4 apprenticeship opportunity? If yes, the Portfolio evidence tab should probably expand around it (workflow map, suitability scoring, business case draft); if it's a parallel work project rather than the formal gateway submission, it belongs in the general AI portfolio instead and this tab should stay narrower.",
+  "Two GitHub repos under your account — ascend-lessons and talk-it-through — turned up when checking your account but aren't in my records of what we've built. Worth telling me what these are so they can be classified into the general portfolio (or excluded, if they're unrelated).",
+  "There's an earlier prototype of exactly this \"everything we've built\" idea — the AI Build Library, built 18 June, in-chat only, never pushed to GitHub. The new Loles AI Portfolio app effectively supersedes it (broader, categorised, pushed to Netlify) — flag if you'd rather merge/reconcile the two instead of treating the June one as retired.",
   "Workbook answers (your own input/feedback in the activity tables) were deliberately NOT pulled into this tracker as verified fact — they're your working answers, not confirmed KSB evidence text. Let me know if you'd like a separate 'draft answers' section added.",
 ];
 
