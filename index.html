@@ -121,9 +121,20 @@ const GLOSSARY = [
   {id:"direct-indirect-value", term:"Direct vs indirect value", def:"Two forms of productivity value from automation. Direct value is measurable and immediate — hours saved, cost of errors avoided, transaction volume, headcount capacity released — and is what you lead with in a business case because it's easiest to verify. Indirect value is real but harder to quantify — customer experience, reduced staff frustration, data quality improvements, strategic positioning. Senior leaders often weight both; a strong business case is honest about which figures are precise and which are directional.", src:"Module 1, Unit 4"},
   {id:"scoping-discipline", term:"Scoping discipline", def:"Described as the single most common way apprenticeship projects fail — not from lack of capability, but from choosing a scope too large to deliver in the programme timeline. The test for good scoping: is the opportunity specific, bounded, achievable within six to eight weeks of active build time, visible to the organisation, and supported by your line manager? A small, completed automation teaches and demonstrates more than a large, unfinished one.", src:"Module 1, Unit 4"},
   {id:"five-component-case", term:"The five-component business case", def:"The required structure for the apprenticeship gateway submission (approx. 600–900 words): (1) Process description, (2) The opportunity, (3) Productivity value assessment, (4) Feasibility check, (5) Next steps. Submitted together with the Unit 3 workflow map and suitability scoring as supporting evidence.", src:"Module 1, Unit 4"},
-  {id:"process-vs-person", term:"The process and the person are not the same thing", def:"A communication discipline for practitioners: \"I am automating the invoice processing workflow\" describes a change to a process; a colleague hearing it may reasonably interpret \"my job is being automated\" as a threat to their livelihood — and in workplaces where AI is discussed in terms of efficiency savings and headcount, that reaction is often rational, not paranoid. The responsibility is to be precise and specific about what is changing and what isn't, rather than letting people fill the gap with worse assumptions — not to be evasive, and not to mask a genuine headcount impact in reassuring language either.", src:"Module 2, Unit 1"},
-  {id:"who-consulted", term:"Who gets affected and who gets consulted", def:"A named structural pattern in AI adoption: the people most affected by an automation are frequently the people least likely to have been involved in designing it. The people who do a process daily know things about it — informal workarounds, edge cases, steps that look redundant but aren't — that don't appear in any documentation. Leaving them out isn't just an ethical gap, it produces a worse automation.", src:"Module 2, Unit 1"},
 ];
+
+// Terms you've already reviewed via an exported decisions file — baked in as
+// defaults so they display as settled for anyone opening the app, not just
+// in the browser where you ticked them. Import a new export below to update.
+const DEFAULT_DECISIONS = {
+  "rpa":"confirmed","llm":"confirmed","hallucination":"confirmed","ai-agent":"confirmed",
+  "hitl":"confirmed","hotl":"confirmed","hootl":"confirmed","auto-bias":"confirmed",
+  "fine-tuning":"confirmed","embeddings":"confirmed","rag":"confirmed","sentiment":"confirmed",
+  "ai-builder":"confirmed","vsm":"confirmed","centaur":"confirmed","cyborg":"confirmed",
+  "jagged-frontier":"confirmed","readiness-test":"confirmed","broken-process":"confirmed",
+  "effort-value":"confirmed","direct-indirect-value":"confirmed","scoping-discipline":"confirmed",
+  "five-component-case":"confirmed"
+};
 
 const FRAMEWORKS = [
   {
@@ -293,7 +304,12 @@ const PROMPTS = [
 /* ============ STATE / STORAGE ============ */
 const KEY='ai_apprenticeship_tracker_v2';
 let state={otj:[...SEED_OTJ], notes:'', termDecisions:{}};
-function load(){try{const d=localStorage.getItem(KEY);if(d)state={...state,...JSON.parse(d)};}catch(e){}}
+function load(){
+  try{const d=localStorage.getItem(KEY);if(d)state={...state,...JSON.parse(d)};}catch(e){}
+  // Baked-in decisions apply as the baseline; anything you've decided locally in
+  // this browser (including re-opening a term via "change") takes precedence.
+  state.termDecisions={...DEFAULT_DECISIONS, ...state.termDecisions};
+}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 load();
 
@@ -376,7 +392,7 @@ let glossaryFilter='all';
 function renderGlossary(){
   return `
   <h2>Glossary</h2>
-  <p class="muted">Extracted from every key-term box, named concept and framework across the uploaded modules and workbooks. Use the tick to confirm a term belongs, the bin to flag it for removal — nothing is deleted from the page until you confirm, but marking it tells me what to trim (or keep looking for more of) next time we talk. <button class="btn" style="float:right;" onclick="exportDecisions()">Export my decisions</button></p>
+  <p class="muted">Extracted from every key-term box, named concept and framework across the uploaded modules and workbooks. Terms you've already reviewed are marked confirmed or flagged for removal and won't show the tick/bin icons again — only new, undecided terms need a decision. Click "change" on any settled term to revisit it. <button class="btn" style="float:right;" onclick="exportDecisions()">Export my decisions</button></p>
   <div class="searchbar"><input type="text" id="glossarySearch" placeholder="Search terms..." oninput="filterGlossary()"></div>
   <div class="filterbar" id="glossaryFilterbar"></div>
   <div id="glossaryList"></div>`;
@@ -400,21 +416,29 @@ function filterGlossary(){
   }
   list.innerHTML=items.map(g=>{
     const d=state.termDecisions[g.id];
+    const decided=!!d;
     return `
     <div class="card term-card ${d==='removed'?'removed':''}">
       <div class="term-actions">
-        <button class="icon-btn tick ${d==='confirmed'?'active':''}" title="Confirm — keep this term" onclick="setTermDecision('${g.id}','confirmed')">&#10003;</button>
-        <button class="icon-btn bin ${d==='removed'?'active':''}" title="Mark for removal" onclick="setTermDecision('${g.id}','removed')">&#128465;</button>
+        ${decided
+          ? `<span class="status-tag ${d}">${d==='confirmed'?'confirmed':'flagged for removal'}</span> <a href="#" class="small" onclick="event.preventDefault();clearTermDecision('${g.id}')" style="margin-left:6px;">change</a>`
+          : `<button class="icon-btn tick" title="Confirm — keep this term" onclick="setTermDecision('${g.id}','confirmed')">&#10003;</button>
+             <button class="icon-btn bin" title="Mark for removal" onclick="setTermDecision('${g.id}','removed')">&#128465;</button>`
+        }
       </div>
       <span class="badge glossary-source">${g.src}</span>
-      <div class="term">${g.term} ${d?`<span class="status-tag ${d}">${d==='confirmed'?'confirmed':'flagged for removal'}</span>`:''}</div>
+      <div class="term">${g.term}</div>
       <div class="small" style="margin-top:4px;line-height:1.5;">${g.def}</div>
     </div>`;
   }).join('') || '<p class="muted">No matches.</p>';
 }
 function setTermDecision(id,decision){
-  if(state.termDecisions[id]===decision){delete state.termDecisions[id];} // toggle off
-  else{state.termDecisions[id]=decision;}
+  state.termDecisions[id]=decision;
+  save();
+  filterGlossary();
+}
+function clearTermDecision(id){
+  delete state.termDecisions[id];
   save();
   filterGlossary();
 }
