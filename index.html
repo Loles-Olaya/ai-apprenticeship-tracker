@@ -93,8 +93,9 @@ const SOURCES = [
   {file:"My_own_glossary.xlsx", note:"Personal glossary + prompt library, self-maintained", date:"2026-08-25"},
   {file:"KSB_List.xlsx", note:"Unit-specific KSB extract (K5, K6, K9)", date:"2026-08-25"},
   {file:"patorg_enhancement_swimlane.png", note:"PatOrg enhancement-to-go-live swimlane — workplace evidence", date:"2026-08-25"},
+  {file:"OTJs_Tracker.xlsx", note:"Full off-the-job hours log — replaced the placeholder OTJ data with all 57 logged entries", date:"2026-08-25"},
 ];
-const LAST_UPDATE = "25 August 2026";
+const LAST_UPDATE = "25 August 2026 (v3 — OTJ log replaced with full spreadsheet data)";
 
 const GLOSSARY = [
   {id:"rpa", term:"Robotic Process Automation (RPA)", def:"Software that mimics human actions on a computer interface (clicking, copying, pasting) to automate repetitive tasks. It follows fixed rules and cannot handle unexpected variation.", src:"Module 1, Unit 1 / My own glossary"},
@@ -211,13 +212,63 @@ const KSB_MAP = [
 ];
 
 const SEED_OTJ = [
-  {date:'2026-05-02',desc:'Attended Launch Meeting — introduced to AiCore programme, instructors Gordon Cheung and Chris Butler, KSBs, and programme structure',hours:1.5,ksbs:['K9','K7']},
-  {date:'2026-05-02',desc:'Created a search tool for agents pricing per recordal type out of 3 large spreadsheets',hours:1,ksbs:['K5','S1','S6']},
-  {date:'2026-05-03',desc:'Completed Lesson 1 of Unit 1 — AI Landscape overview',hours:0.5,ksbs:['K9']},
-  {date:'2026-05-07',desc:'Completed Lesson 2 of Unit 1 — Capabilities & Limitations',hours:1.5,ksbs:['K9','K6']},
-  {date:'2026-05-08',desc:'Experimentation with automating documentation creation from videos',hours:2,ksbs:['K5','S1','S4']},
-  {date:'2026-05-09',desc:'Experimentation with automating a tracker',hours:1,ksbs:['K5','S4','B3']},
-  {date:'2026-05-11',desc:'Completed Lesson 3 of Unit 1 — AI in Your Organisation',hours:1,ksbs:['K9','K5','S6']},
+  {date:'2026-05-21',desc:'Attended Launch Meeting',hours:1.5,type:'Launch Meeting'},
+  {date:'2026-05-21',desc:'Created a search tool for agents pricing per recordal type out of 3 big spreadsheets',hours:1,type:'Other'},
+  {date:'2026-05-22',desc:'Completed Lesson 1 of Unit 1 (Module 1)',hours:0.5,type:'Self-Paced Learning'},
+  {date:'2026-05-26',desc:'Completed Lesson 2 of Unit 1 (Module 1)',hours:1.5,type:'Self-Paced Learning'},
+  {date:'2026-05-27',desc:'Experimentation with automating documentation creation out of videos',hours:2,type:'Projects'},
+  {date:'2026-05-28',desc:'Experimentation with automating a tracker',hours:1,type:'Projects'},
+  {date:'2026-06-01',desc:'Core Connect meeting',hours:0.75,type:'1:1 Meetings'},
+  {date:'2026-06-02',desc:'Completed Lesson 3 of Unit 1 (Module 1)',hours:1,type:'Self-Paced Learning'},
+  {date:'2026-06-02',desc:'Completed Lesson 4 of Unit 1 (Module 1)',hours:0.5,type:'Self-Paced Learning'},
+  {date:'2026-06-03',desc:'Created an app to track the status of my progress on the Apprenticeship, as well as track a list of KSB, and the activities I\'m tracking in this OTJs tracker',hours:1,type:'Other'},
+  {date:'2026-06-03',desc:'Created an app as a knowledge base out of some documentation. Where we can search for specific topics to help us use a tool. This includes also an area to add new material, so it can continue feeding the knowledge base. It also contains an AI chat prototype, but that won\'t work as we need APIs in place.',hours:1,type:'Projects'},
+  {date:'2026-06-04',desc:'Created an app out of a Release tracker in excel, where we have transformed tabs with information about Outcomes and Features, into a dynamic dashboard where information is linked easily, and can be searched. Other information is now more visible, like priorities, and filters are more powerful than in the excel.',hours:1,type:'Other'},
+  {date:'2026-06-08',desc:'Improved my Apprenticeship tracker app',hours:0.5,type:'Other'},
+  {date:'2026-06-09',desc:'Meeting with instructor',hours:0.75,type:'1:1 Meetings'},
+  {date:'2026-10-09',desc:'Updated knowledge base app',hours:0.5,type:'Projects'},
+  {date:'2026-06-10',desc:'Created an app to replicate interviewing with a manager. Took the public information from LInkedin, fed it to Claude, and created an app where the AI would pretent to be the person in that Linkedin profile, so can ask questions as in an interview, or as if you were introducing yourself to them. Also added suggestions for questions, and other interesting points to discuss. I then updated the app further feeding my CV, so the recommendations for questions and answers were more tailored to my profile too.',hours:1.5,type:'Projects'},
+  {date:'2026-06-10',desc:'Created a library app with a list of useful AI tools, indicating what are they useful for, as well as a ranking by usage and quality.',hours:1,type:'Projects'},
+  {date:'2026-06-10',desc:'Misc conversations with Product manager about AI solutions we both have been working on, and how they can be improved.',hours:1,type:'Other'},
+  {date:'2026-06-11',desc:'Completed Lesson 1 of Unit 1 (Module 1)',hours:1,type:'Self-Paced Learning'},
+  {date:'2026-06-14',desc:'Completed Lesson 2 of Unit 1 (Module 1)',hours:1,type:'Self-Paced Learning'},
+  {date:'2026-06-24',desc:'Q&A session with the head of Product Technology, about the use of AI, especially with Co-pilot. And also about the future of open source LLMs',hours:1,type:'Other'},
+  {date:'2026-06-17',desc:'Completed Lesson 1 of Unit 3 (Module 1)',hours:0.5,type:'Self-Paced Learning'},
+  {date:'2026-06-22',desc:'Completed Lesson 2 of Unit 3 (Module 1)',hours:1.5,type:'Self-Paced Learning'},
+  {date:'2026-06-25',desc:'Completed Lesson 3 of Unit 3 (Module 1)',hours:1.5,type:'Self-Paced Learning'},
+  {date:'2026-06-29',desc:'Created a Meetings Hub prototype, where we can paste scripts from meetings and will extract a summary, actions, risks and other info per meeting. But also create actions, risks and other logs across all the meetings. And it also contains an AI chat/search option to be able to ask anything about any of the content in the Hub.',hours:2,type:'Projects'},
+  {date:'2026-06-30',desc:'Created app in Lovable for the Meetings Hub prototype done with Claude.',hours:1.5,type:'Projects'},
+  {date:'2026-06-30',desc:'Course Companion - Created an app in Claude where I can upload content from the course and create a glossary, a list of AI prompts, KSB Tracker and other useful info',hours:0.5,type:'Projects'},
+  {date:'2026-07-01',desc:'Created app in Lovable for the Meetings Hub prototype done with Claude - refinement',hours:4,type:'Projects'},
+  {date:'2026-07-07',desc:'Created a "Career Certification explorer". A tool that based on my skills, experience and career aspirations, recommends which courses could be useful, provides info about pricing, links etc. And advises me further on career paths. I\'ve also published it in Netlify',hours:1.5,type:'Projects'},
+  {date:'2026-07-07',desc:'Created a prompt library',hours:0.5,type:'Projects'},
+  {date:'2026-07-08',desc:'Redone part of the workbook for Lesson 3 of Unit 3 (Module 1), including a new candidate',hours:0.5,type:'Self-Paced Learning'},
+  {date:'2026-07-09',desc:'Created a netlify account and started experimenting moving tools there. Need to look at setting also a Github account to manage updates more efficiently, that\'s pending.',hours:1,type:'Projects'},
+  {date:'2026-07-10',desc:'Created a Netlify deploy console in Claude for mobile view. Needs more refinement.',hours:0.25,type:'Projects'},
+  {date:'2026-07-14',desc:'Created a new artifact in Claude to organise and categorise my chats',hours:0.25,type:'Projects'},
+  {date:'2026-07-13',desc:'Put together a draft presentation for a support process based on reference material. I fed AI with previous slides with similar structure to reuse, and some other information relevant for the content. Then I also fed the PPT template layout I wanted to use, and created a draft. That had to be edited quite heavily, but at least, I didn\'t have to create it from scratch.',hours:1,type:'Projects'},
+  {date:'2026-07-09',desc:'Completed Lesson 1 of Unit 4 (Module 1)',hours:1,type:'Self-Paced Learning'},
+  {date:'2026-07-13',desc:'Completed Lesson 2 of Unit 4 (Module 1)',hours:1,type:'Self-Paced Learning'},
+  {date:'2026-07-15',desc:'Completed Lesson 3 of Unit 4 (Module 1)',hours:1.5,type:'Self-Paced Learning'},
+  {date:'2026-07-16',desc:'Put together a Claude artifact prototype to keep track of a future process analysis I\'ll be running, along with an area to track feedback and recommendations for process improvements. Idea is to keep all digital in an area all team members involved can access, rather than having lots of documents in a sharepoint or similar. This is still a vague POC, and I need to discuss with the AI council about hosting along with the Meeting Hub project.',hours:1,type:'Projects'},
+  {date:'2026-07-16',desc:'Meeting with instructor',hours:0.75,type:'1:1 Meetings'},
+  {date:'During July 2026',desc:'Conversations with Becky (AI Adoption & Enablement Programme lead)',hours:2,type:'Other'},
+  {date:'2026-07-23',desc:'Added more details to the IP Services Knowledge Base',hours:2,type:'Projects'},
+  {date:'2026-07-30',desc:'Created a Process Review Tool + Word questionnaire. Still empty — was just to give me ideas of how to structure the conversation and overall exercise with the team',hours:1,type:'Projects'},
+  {date:'2026-07-30',desc:'Created an app with information on how to plan if I wanted to create a YouTube channel for education purposes, with ideas on content, structure, marketing, etc. Just to give me an idea if in future I wanted to explore additional revenue channels.',hours:1,type:'Other'},
+  {date:'2026-08-05',desc:'Meeting with instructor',hours:0.75,type:'1:1 Meetings'},
+  {date:'2026-08-05',desc:'Cowork tool evaluation. Assessed Claude Cowork vs. standard chat against real project workflows (KB, tracker, PatOrg work)',hours:0.5,type:'Projects'},
+  {date:'2026-08-10',desc:'Recordals process documentation. Synthesised two stakeholder transcripts into a structured Word doc (process steps, risk matrix) and pushed 7 new entries to IP Services Knowledge Base on GitHub',hours:1.5,type:'Projects'},
+  {date:'2026-08-10',desc:'Summarised some meeting minutes, actions and challenges — misc meetings',hours:1,type:'Projects'},
+  {date:'2026-08-11',desc:'Reviewed emails for different stakeholders with Claude to ensure I was conveying the right ideas in the right tone.',hours:1,type:'Projects'},
+  {date:'2026-08-19',desc:'PatOrg UAT limitations report. Major deliverable: built findings explorer (HTML), detailed Word report, and executive summary from raw UAT source material (~4,065 items, 112 countries) for senior leadership risk report',hours:4,type:'Office hours'},
+  {date:'2026-08-20',desc:'Creation of Jira knowledge base app, adding how-tos, JQL queries, info about certificates, and anything related to how to use Jira',hours:1,type:'Projects'},
+  {date:'2026-08-21',desc:'IP recordal quoting research, IP KB updated, and creation of app prototype to extract information from customer emails and categorise the IP information automatically for quotation. Done with generic online information while gathering the real internal quotation process and examples from the team; also pursuing AI licenses and hosting so this can be done within corporate environments rather than a personal Claude license.',hours:1,type:'Office hours'},
+  {date:'2026-08-20',desc:'Kick-off with 3rd party vendor Netpremacy, who will support RWS with assessment and implementation of use cases, including the Meetings Hub proposal. Workshops to follow to assess all use cases presented and agree next steps',hours:0.5,type:'Office hours'},
+  {date:'2026-08-22',desc:'Several conversations with the Product Manager and a Director on how to resolve the quotation problems, what automation solutions can be implemented, and how to present a business case to get budget and resources',hours:1,type:'Office hours'},
+  {date:'2026-08-24',desc:'Tried to replicate the internal quote tool in MS Power Apps as a substitute for Claude + hosting — progressing very slowly, nothing functional yet',hours:1.5,type:'Office hours'},
+  {date:'2026-08-25',desc:'Completed Lesson 1 of Unit 3 (Module 1)',hours:0.5,type:'Self-Paced Learning'},
+  {date:'2026-08-25',desc:'Completed Lesson 2 of Unit 3 (Module 1)',hours:1.5,type:'Self-Paced Learning'},
 ];
 
 const PORTFOLIO_EVIDENCE = [
@@ -226,7 +277,8 @@ const PORTFOLIO_EVIDENCE = [
 
 const TOVERIFY = [
   "The KSB codes actually referenced across these workbooks (K3, K5, K6, K9, K15, K26, S6, S13, S14, B1, B2, B5) go well beyond the K1–K10 / S1–S8 / B1–B4 range assumed in the June tracker build. Worth uploading the official AiCore KSB matrix/spec so this table can be completed and the code ranges reconciled properly.",
-  "The OTJ hours log below only has the original 7 entries from early May (~8.5 hours total) carried over from the June version of this tracker — nothing since has been logged here. Against a 420-hour target this needs a proper catch-up session (or a decision to reconstruct hours from the July/August work log we built separately).",
+  "The OTJ log now reflects your OTJs_Tracker.xlsx in full (57 entries, 64.5 of 420 hours) — one date looks like a typo in the source file: 'Updated knowledge base app' is dated 2026-10-09, sitting between two June entries (08/06 and 09/06). It's very likely meant to be 09/06 (day/month swapped) — worth checking your spreadsheet and correcting there so it flows through next time.",
+  "One entry has no exact date in the source file ('Conversations with Becky... During July 2026') — kept as a text date rather than guessing a specific day.",
   "Whether LinkedIn 365-Day Learning Challenge days should be logged as OTJ hours for this apprenticeship, or kept as separate CPD/portfolio evidence — this tracker currently keeps them separate.",
   "Whether Gordon Cheung, Chris Butler and Neil Price are still your current instructor/coach contacts.",
   "Module 1, Unit 2 and Unit 4 are now marked complete per your instruction — the underlying workbooks supplied (Module1_Unit2_Workbook_v1_WIP.docx, Module1_Unit4_Workbook.docx) were still labelled WIP in their filenames, so if there's a newer finished version, worth uploading it so the activity list reflects the final content. Module 2 remains WIP — only Unit 1, Lessons 1–2 have been supplied so far.",
@@ -404,18 +456,18 @@ function renderKsb(){
 function renderOtj(){
   const total=state.otj.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
   return `<h2>Off-the-job (OTJ) hours log</h2>
-  <p class="muted">Target: 420 hours. Carried over from the original tracker build (May 2026 entries) — see <b>To verify</b> regarding the gap since then.</p>
-  <div class="stat" style="max-width:200px;margin-bottom:14px;"><div class="num">${total}</div><div class="lab">hours logged</div></div>
+  <p class="muted">Target: 420 hours. Replaced with the full, up-to-date log from your OTJs_Tracker.xlsx (57 entries, 64.5 hours) — see <b>To verify</b> for one date anomaly worth checking.</p>
+  <div class="stat" style="max-width:200px;margin-bottom:14px;cursor:default;"><div class="num">${total}</div><div class="lab">hours logged</div></div>
   <table>
-    <tr><th>Date</th><th>Description</th><th>Hours</th><th>KSBs</th></tr>
-    ${state.otj.map(e=>`<tr><td>${e.date}</td><td>${e.desc}</td><td>${e.hours}</td><td>${(e.ksbs||[]).map(k=>`<span class="badge badge-ksb">${k}</span>`).join('')}</td></tr>`).join('')}
+    <tr><th>Date</th><th>Description</th><th>Hours</th><th>Type</th></tr>
+    ${state.otj.map(e=>`<tr><td style="white-space:nowrap;">${e.date}</td><td>${e.desc}</td><td>${e.hours}</td><td><span class="badge">${e.type||''}</span></td></tr>`).join('')}
   </table>
   <h3>Add an entry</h3>
   <div class="card">
     <div class="flex">
       <input type="text" id="otjDate" placeholder="YYYY-MM-DD" style="max-width:140px;">
       <input type="text" id="otjHours" placeholder="Hours" style="max-width:80px;">
-      <input type="text" id="otjKsbs" placeholder="KSBs, comma separated" style="max-width:180px;">
+      <input type="text" id="otjType" placeholder="Activity type" style="max-width:180px;">
     </div>
     <textarea id="otjDesc" placeholder="Description" style="margin-top:8px;" rows="2"></textarea>
     <button class="btn" style="margin-top:8px;" onclick="addOtj()">Add entry</button>
@@ -425,10 +477,9 @@ function addOtj(){
   const date=document.getElementById('otjDate').value.trim();
   const hours=parseFloat(document.getElementById('otjHours').value);
   const desc=document.getElementById('otjDesc').value.trim();
-  const ksbs=document.getElementById('otjKsbs').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const type=document.getElementById('otjType').value.trim();
   if(!date||!desc||!hours){alert('Please fill in date, description and hours.');return;}
-  state.otj.push({date,desc,hours,ksbs});
-  state.otj.sort((a,b)=>a.date.localeCompare(b.date));
+  state.otj.push({date,desc,hours,type});
   save();
   renderAll();
   showTab('otj');
